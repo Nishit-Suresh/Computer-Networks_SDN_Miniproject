@@ -23,6 +23,14 @@ The system monitors network traffic by collecting flow statistics from OpenFlow 
 
 ---
 
+## 🗺️ Network Topology
+
+The network consists of three hosts connected to a single OpenFlow switch, which is controlled by the POX controller.
+
+![Topology](screenshots/topology.png)
+
+---
+
 ## ⚙️ Setup & Execution
 
 ### 1. Start POX Controller
