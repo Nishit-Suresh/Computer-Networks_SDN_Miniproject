@@ -1,218 +1,109 @@
-# 🚀 SDN-Based Network Utilization Monitoring using Mininet & POX
-
----
+# SDN-Based Network Utilization Monitor
 
 ## 📌 Overview
+This project implements a Software Defined Networking (SDN) based Network Utilization Monitor using POX controller and Mininet emulator.
 
-This project demonstrates a Software Defined Networking (SDN) environment using:
-
-- 🧠 POX Controller (Control Plane)
-- 🌐 Mininet (Network Emulation)
-- 📡 Wireshark (Packet Analysis)
-
-The system monitors real-time network traffic and analyzes packet flow between hosts.
+The system monitors network traffic by collecting flow statistics from OpenFlow switches and estimating bandwidth usage periodically.
 
 ---
 
-## 🧠 Objective
-
-The goal of this project is to:
-
-- Simulate an SDN network using Mininet
-- Implement a custom POX controller (`monitor.py`)
-- Monitor real-time packet flow (source → destination)
-- Analyze traffic using Wireshark
-- Observe flow table entries dynamically
+## 🎯 Objectives
+- Monitor network traffic in real-time
+- Collect byte counters from switches
+- Estimate bandwidth utilization
+- Display periodic network statistics
 
 ---
 
-## 🏗️ Network Architecture
-
-The topology consists of:
-
-- 1 Switch → `s1`
-- 3 Hosts → `h1, h2, h3`
-- Remote Controller → POX
-
-```
-h1 ----\
-        \
-         s1 ----> POX Controller
-        /
-h2 ----/
-        \
-         h3
-```
+## 🏗️ Architecture
+- Controller: POX
+- Emulator: Mininet
+- Protocol: OpenFlow
+- Topology: Single switch with 3 hosts
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Setup & Execution
 
-### 🔹 Step 1: Start POX Controller
-
-```bash
+### 1. Start POX Controller
 cd ~/pox
 ./pox.py forwarding.l2_learning monitor
-```
 
----
-
-### 🔹 Step 2: Run Mininet
-
-```bash
+### 2. Start Mininet
 sudo mn --topo single,3 --controller remote --mac
-```
 
----
-
-### 🔹 Step 3: Test Connectivity
-
-```bash
+### 3. Generate Traffic
 pingall
-```
+iperf h1 h2
 
-✔ Expected: 0% packet loss
-
----
-
-### 🔹 Step 4: Generate Traffic
-
-```bash
-iperf
-```
-
-✔ Used to measure bandwidth
-
----
-
-### 🔹 Step 5: View Flow Tables
-
-```bash
+### 4. View Flow Tables
 dpctl dump-flows
-```
-
-✔ Shows dynamically installed rules
 
 ---
 
-### 🔹 Step 6: Run Wireshark
+## 📊 Expected Output
 
-- Select interface: `any`
-- Apply filters:
-  - `icmp`
-  - `tcp`
+The controller periodically prints:
+
+Requesting flow stats from switch...
+Total Bytes from switch: 1302
+Estimated Bandwidth: 2.08 Kbps
 
 ---
 
-## 📊 Results & Observations
+## 📸 Proof of Execution
 
-### 🔹 Mininet Output
-
-- Successful host communication
-- Zero packet loss
-- Bandwidth measured via iperf
-
+### Mininet Output
 ![Mininet Output](screenshots/mininet_output.png)
 
----
-
-### 🔹 POX Monitoring Output
-
-The custom controller logs IP traffic:
-
-```
-IP Packet: 10.0.0.1 -> 10.0.0.2
-```
-
+### POX Monitoring Logs
 ![POX Logs](screenshots/pox_logs.png)
 
----
+### Flow Table Entries
+![Flow Table](screenshots/flow_table.png)
 
-### 🔹 Wireshark Analysis
-
-Captured:
-
-- ICMP packets (ping)
-- TCP packets (iperf)
-
+### Wireshark ICMP Traffic
 ![Wireshark ICMP](screenshots/wireshark_icmp.png)
+
+### Wireshark TCP Traffic
 ![Wireshark TCP](screenshots/wireshark_tcp.png)
 
 ---
 
-### 🔹 Flow Table Entries
+## 🧠 How It Works
 
-Flow rules installed dynamically:
+The controller sends Flow Stats Requests every 5 seconds.
+The switch responds with packet and byte counts.
 
-- ICMP rules
-- ARP rules
-- Output port mapping
-
-![Flow Table](screenshots/flow_table.png)
+Bandwidth = (ΔBytes × 8) / Time
 
 ---
 
-## 🔍 How It Works
+## ⚠️ Note on Bandwidth Spikes
 
-1. Host sends packet → reaches switch  
-2. Switch doesn’t know rule → sends to controller  
-3. POX analyzes packet  
-4. Installs flow rule  
-5. Future packets bypass controller  
+Temporary spikes in bandwidth may occur due to:
+- Flow table updates
+- Flow expiration
+- Counter resets in OpenFlow switches
 
----
-
-## 📌 Key Features
-
-- ✅ Real-time traffic monitoring  
-- ✅ Custom POX controller  
-- ✅ Dynamic flow installation  
-- ✅ Packet-level analysis  
-- ✅ SDN architecture implementation  
+These are normal in SDN environments and do not affect functionality.
 
 ---
 
-## 🧠 Learning Outcomes
+## 📂 Project Structure
 
-- Understanding SDN architecture  
-- Controller-switch interaction  
-- OpenFlow protocol basics  
-- Network traffic analysis  
-- Flow-based forwarding  
-
----
-
-## 🧾 Conclusion
-
-This project successfully demonstrates:
-
-- Centralized control using SDN
-- Real-time monitoring via POX
-- Dynamic flow rule installation
-- Packet-level analysis using Wireshark
-
-It validates how SDN improves flexibility and visibility in modern networks.
-
----
-
-## 📁 Repository Structure
-
-```
-.
-├── monitor.py
-├── README.md
-└── screenshots/
-    ├── mininet_output.png
-    ├── pox_logs.png
-    ├── wireshark_icmp.png
-    ├── wireshark_tcp.png
-    └── flow_table.png
-```
+monitor.py  
+README.md  
+screenshots/  
 
 ---
 
 ## 📚 References
-
-- Mininet Documentation  
 - POX Controller Documentation  
-- Wireshark Documentation  
+- Mininet Documentation  
+- OpenFlow Specification  
+
+---
+
+## ✅ Conclusion
+This project demonstrates how SDN enables centralized monitoring of network traffic using controller-based analytics and flow statistics.
